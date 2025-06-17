@@ -2,6 +2,7 @@ import pandas as pd
 import torch
 
 DATA_PATH_SYNTH = 'data/synth_data.csv'
+SAVED_PRESET_PATH = 'checkpoints/presets/'
 
 def load_csv_to_torch(path=DATA_PATH_SYNTH):
     df = pd.read_csv(path)

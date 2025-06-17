@@ -1,5 +1,5 @@
 '''
-This file includes a class for the fairness metrics 'balance in positve/negative class
+This file includes a class for the fairness metrics 'balance in positve/negative class'
 
 author: Mick
 '''
