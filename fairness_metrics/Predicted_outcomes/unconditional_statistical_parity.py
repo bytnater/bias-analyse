@@ -15,6 +15,9 @@ class statistical_parity:
         self.threshold = 0.1 #Accepted difference for statistical parity
 
     def check_statistical_parity(self, c2i):
+        """
+        c2i: Collum index
+        """
         results = {}
         for attr in self.protected_attributes:
             col_idx = c2i[attr]
