@@ -25,7 +25,7 @@ class Dataset():
         self.i2c = i2c
         self.c2i = c2i
 
-dataset = Dataset('/home/itsmick_/Documents/UvA/Tweedejaarsproject/project/bias-analyse/data/altered_data/data_pred_ground_altered_pred.csv')
+dataset = Dataset('/home/itsmick_/Documents/UvA/Tweedejaarsproject/project/bias-analyse/data/altered_data/data_pred_ground_altered_pred_biased.csv')
 preset = torch.load(SAVED_PRESET_PATH + 'preset1.pt')
 class balance_in_pos_neg:
     def __init__(self, dataset, preset):
