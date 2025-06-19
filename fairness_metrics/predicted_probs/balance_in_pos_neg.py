@@ -8,6 +8,10 @@ import torch
 import pandas as pd
 import matplotlib.pyplot as plt
 
+#################################################################
+### for testing purpuse
+#################################################################
+
 DATA_PATH_SYNTH = 'data/synth_data.csv'
 SAVED_PRESET_PATH = '/home/itsmick_/Documents/UvA/Tweedejaarsproject/project/bias-analyse/checkpoints/presets/'
 
@@ -27,6 +31,9 @@ class Dataset():
 
 dataset = Dataset('/home/itsmick_/Documents/UvA/Tweedejaarsproject/project/bias-analyse/data/altered_data/data_pred_ground_altered_pred_biased.csv')
 preset = torch.load(SAVED_PRESET_PATH + 'preset1.pt')
+
+#################################################################
+
 class balance_in_pos_neg:
     def __init__(self, dataset, preset):
         self.dataset = dataset
@@ -77,9 +84,6 @@ class balance_in_pos_neg:
             outcome_per_feature.append((self.dataset.i2c[feature], balance_data))
 
         self.results = outcome_per_feature
-            # print(feature_column)
-            # print(ground_truth)
-            # print(prediction)
 
     def show(self):
         for feature, data in self.results:
@@ -92,6 +96,8 @@ class balance_in_pos_neg:
                 plt.bar(data[:,0], data[:,2])
                 plt.show()
 
-
+#################################################################
+### for testing purpuse
+#################################################################
 metric = balance_in_pos_neg(dataset, preset)
 metric.show()

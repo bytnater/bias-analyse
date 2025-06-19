@@ -2,26 +2,39 @@ import torch
 import itertools
 
 class statistical_parity:
-    def __init__(self, data, predictions, protected_attributes):
+    def __init__(self, dataset, preset):
         """
         data: dataset Tensor
         predictions: Tensor of model predictions
         protected_attributes: List of protected attribute names
+
+        dataset: contains data, i2c, c2i
+        preset: contains all important data in a dict, note preset is a bad name for it but it is already all over the code
         """
-        self.data = data
+        self.dataset = dataset
+
+        prediction_column = preset.get('prediction_column', '')
+        protected_attributes = preset.get('protected_values', torch.zeros(len(self.dataset.i2c), dtype=bool)).nonzero().view(-1)  ## gains a list of indices, where the index encodes the name
+        
+        predictions = self.dataset.data[:,self.dataset.c2i[prediction_column]]  ## extract column with predictions from datset
         self.predictions = (predictions > 0.8).float().squeeze()
         #Currently 80% certainty of model indicates a 1 prediction but can be changed
-        self.protected_attributes = protected_attributes
+        
+        self.protected_attributes = [dataset.i2c[protected_attributes[i]] for i in range(len(protected_attributes))]  ## changes them to a list with names
+
         self.threshold = 0.1 #Accepted difference for statistical parity
 
-    def check_statistical_parity(self, c2i):
+    def check_statistical_parity(self):
         """
         c2i: Collum index
+        :)
+        steen papier schaar, go
+        steen
         """
         results = {}
         for attr in self.protected_attributes:
-            col_idx = c2i[attr]
-            protected_col = self.data[:, col_idx]
+            col_idx = self.dataset.c2i[attr]
+            protected_col = self.dataset.data[:, col_idx]
 
             unique_values = torch.unique(protected_col)
 
@@ -46,3 +59,7 @@ class statistical_parity:
             }
             
         return results
+    
+    def show(self):
+        # TODO, a funtion to represent data, via a simple message of a graph
+        pass
