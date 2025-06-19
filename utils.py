@@ -11,4 +11,9 @@ def load_csv_to_torch(path=DATA_PATH_SYNTH):
     data_torch = torch.from_numpy(df.values)
     return data_torch, (i2c, c2i)
 
-
+class Dataset():
+    def __init__(self, PATH):
+        data, (i2c, c2i) = load_csv_to_torch(PATH)
+        self.data = data
+        self.i2c = i2c
+        self.c2i = c2i
