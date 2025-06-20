@@ -13,14 +13,18 @@ class statistical_parity:
         """
         self.dataset = dataset
 
+
         prediction_column = preset.get('prediction_column', '')
-        protected_attributes = preset.get('protected_values', torch.zeros(len(self.dataset.i2c), dtype=bool)).nonzero().view(-1)  ## gains a list of indices, where the index encodes the name
-        
+        assert self.prediction_column != '', 'This metric needs a prediction'
         predictions = self.dataset.data[:,self.dataset.c2i[prediction_column]]  ## extract column with predictions from datset
         self.predictions = (predictions > 0.8).float().squeeze()
         #Currently 80% certainty of model indicates a 1 prediction but can be changed
         
-        self.protected_attributes = [dataset.i2c[protected_attributes[i]] for i in range(len(protected_attributes))]  ## changes them to a list with names
+        protected_values = preset.get('protected_values', torch.zeros(len(dataset.i2c), dtype=bool))
+        self.protected_attributes = [
+            name for name, is_protected in zip(dataset.i2c, protected_values)
+            if is_protected
+        ]
 
         self.threshold = 0.1 #Accepted difference for statistical parity
 
