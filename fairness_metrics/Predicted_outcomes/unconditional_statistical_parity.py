@@ -15,7 +15,7 @@ class statistical_parity:
 
 
         prediction_column = preset.get('prediction_column', '')
-        assert self.prediction_column != '', 'This metric needs a prediction'
+        assert prediction_column != '', 'This metric needs a prediction'
         predictions = self.dataset.data[:,self.dataset.c2i[prediction_column]]  ## extract column with predictions from datset
         self.predictions = (predictions > 0.8).float().squeeze()
         #Currently 80% certainty of model indicates a 1 prediction but can be changed

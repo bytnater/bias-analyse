@@ -1,10 +1,11 @@
 '''
-This file includes a class for the fairness metrics 'balance in positve/negative class'
+This file includes a class for the fairness metrics 'test-fairness and well-calibration'
 
 author: Mick
 '''
 
 import torch
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -34,12 +35,10 @@ preset = torch.load(SAVED_PRESET_PATH + 'preset1.pt')
 
 #################################################################
 
-class balance_in_pos_neg:
+class well_calibration:
     def __init__(self, dataset, preset):
         self.dataset = dataset
-        self.calc_pos = preset.get('balance_pos', True)
-        self.calc_neg = preset.get('balance_neg', True)
-        assert self.calc_pos + self.calc_neg != 0, 'Select at least one metric'
+        self.preset = preset
 
         self.ground_truth_column = preset.get('ground_truth_column', '')
         self.prediction_column = preset.get('prediction_column', '')
@@ -47,59 +46,65 @@ class balance_in_pos_neg:
         assert self.ground_truth_column != '', 'This metric needs a ground truth'
         assert self.prediction_column != '', 'This metric needs a prediction'
 
-        self.check_features = preset.get('protected_values', torch.zeros(len(self.dataset.i2c), dtype=bool))
-        indices = self.check_features.nonzero()
-        # self.dataset.data[:,preset['protected_values']]  ## filter all unimportent
+        check_features = preset.get('protected_values', torch.zeros(len(self.dataset.i2c), dtype=bool))
+        indices = check_features.nonzero()
 
 
         # calculation
-        outcome_per_feature: list[tuple[str, list[int, float]]] = []
+        outcome_per_feature = []
         for feature in indices:
-            # print('feature i atm:',feature)
             feature_column = self.dataset.data[:,feature].squeeze(-1)
             ground_truth = self.dataset.data[:,self.dataset.c2i[self.ground_truth_column]]
             prediction = self.dataset.data[:,self.dataset.c2i[self.prediction_column]]
+            prediction = torch.round(prediction / 0.1)  ## bins the into bins from 0 to 10
             unique_feature_values = feature_column.unique()
             # print('unique values', unique_feature_values)
 
-            balance_data = []
+            calibration_data = []
             for feature_value in unique_feature_values:
 
                 indices_feature = (feature_column == feature_value).nonzero().squeeze(-1)
-                pos_total, neg_total = [0, 0], [0, 0]
+                bins = np.arange(0,10.5,1)
+                data = {key: [0, 0] for key in bins}
+
                 for index in indices_feature:
+                    key = int(prediction[index])
+                    data[key][1] += 1
                     if ground_truth[index] == 1:
-                        pos_total[0] += prediction[index]
-                        pos_total[1] += 1
-                    else:
-                        neg_total[0] += prediction[index]
-                        neg_total[1] += 1
-                avg_pos = pos_total[0]/pos_total[1] if pos_total[1] != 0 else 0
-                avg_neg = neg_total[0]/neg_total[1] if neg_total[1] != 0 else 0
-                # print(avg_pos)
-                # print(avg_neg)
+                        data[key][0] += 1
 
-                balance_data.append((feature_value, avg_pos, avg_neg))
-            balance_data = torch.tensor(balance_data)
-            outcome_per_feature.append((self.dataset.i2c[feature], balance_data))
+                refit_data = [feature_value.item()]
+                for data_key, data_item in data.items():
+                    fraction = data_item[0]/data_item[1] if data_item[1] else 0
+                    refit_data.append(fraction)
 
+                calibration_data.append(refit_data)
+            calibration_data = torch.tensor(calibration_data)
+            outcome_per_feature.append((self.dataset.i2c[feature], calibration_data))
+        
         self.results = outcome_per_feature
 
     def show(self, raw_results=False):
         if raw_results:
             return self.results
         for feature, data in self.results:
-            if self.calc_pos:
-                plt.title(f'Postive balance: "{feature}"')
-                plt.bar(data[:,0], data[:,1])
+                plt.title(f'Fairness scale: "{feature}"')
+                if len(data) > 5:
+                    bin_ranges = (np.linspace(0,len(data)-1,4)+.5).astype(int)
+                    for i, ni in zip(bin_ranges[:-1], bin_ranges[1:]):
+                        new_data = sum(data[i:ni,1:])/len(data[i:ni,1:])
+                        plt.plot(new_data, label=[f'from {data[i,0]} to {data[ni,0]}'])
+
+                else:
+                    for group_data in data:
+                        plt.plot(group_data[1:], label=[f'{group_data[0]}'])
+                
+                plt.legend()
                 plt.show()
-            if self.calc_neg:
-                plt.title(f'Negative balance: "{feature}"')
-                plt.bar(data[:,0], data[:,2])
-                plt.show()
+
 
 #################################################################
 ### for testing purpuse
 #################################################################
-metric = balance_in_pos_neg(dataset, preset)
+metric = well_calibration(dataset, preset)
 metric.show()
