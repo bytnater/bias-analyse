@@ -31,22 +31,22 @@ class Dataset():
         self.c2i = c2i
 
 dataset = Dataset('/home/itsmick_/Documents/UvA/Tweedejaarsproject/project/bias-analyse/data/altered_data/data_pred_ground_altered_pred_biased.csv')
-preset = torch.load(SAVED_PRESET_PATH + 'preset1.pt')
+params = torch.load(SAVED_PRESET_PATH + 'preset1.pt')
 
 #################################################################
 
 class well_calibration:
-    def __init__(self, dataset, preset):
+    def __init__(self, dataset, params):
         self.dataset = dataset
-        self.preset = preset
+        self.params = params
 
-        self.ground_truth_column = preset.get('ground_truth_column', '')
-        self.prediction_column = preset.get('prediction_column', '')
+        self.ground_truth_column = params.get('ground_truth_column', '')
+        self.prediction_column = params.get('prediction_column', '')
 
         assert self.ground_truth_column != '', 'This metric needs a ground truth'
         assert self.prediction_column != '', 'This metric needs a prediction'
 
-        check_features = preset.get('protected_values', torch.zeros(len(self.dataset.i2c), dtype=bool))
+        check_features = params.get('protected_values', torch.zeros(len(self.dataset.i2c), dtype=bool))
         indices = check_features.nonzero()
 
 
@@ -87,17 +87,18 @@ class well_calibration:
     def show(self, raw_results=False):
         if raw_results:
             return self.results
+        bins = np.arange(0,10.5,1)
         for feature, data in self.results:
                 plt.title(f'Fairness scale: "{feature}"')
                 if len(data) > 5:
                     bin_ranges = (np.linspace(0,len(data)-1,4)+.5).astype(int)
                     for i, ni in zip(bin_ranges[:-1], bin_ranges[1:]):
                         new_data = sum(data[i:ni,1:])/len(data[i:ni,1:])
-                        plt.plot(new_data, label=[f'from {data[i,0]} to {data[ni,0]}'])
+                        plt.plot(bins, new_data, label=[f'from {data[i,0]} to {data[ni,0]}'])
 
                 else:
                     for group_data in data:
-                        plt.plot(group_data[1:], label=[f'{group_data[0]}'])
+                        plt.plot(bins, group_data[1:], label=[f'{group_data[0]}'])
                 
                 plt.legend()
                 plt.show()
@@ -106,5 +107,5 @@ class well_calibration:
 #################################################################
 ### for testing purpuse
 #################################################################
-metric = well_calibration(dataset, preset)
+metric = well_calibration(dataset, params)
 metric.show()

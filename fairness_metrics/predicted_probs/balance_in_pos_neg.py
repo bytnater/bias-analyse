@@ -30,26 +30,26 @@ class Dataset():
         self.c2i = c2i
 
 dataset = Dataset('/home/itsmick_/Documents/UvA/Tweedejaarsproject/project/bias-analyse/data/altered_data/data_pred_ground_altered_pred_biased.csv')
-preset = torch.load(SAVED_PRESET_PATH + 'preset1.pt')
+params = torch.load(SAVED_PRESET_PATH + 'preset1.pt')
 
 #################################################################
 
 class balance_in_pos_neg:
-    def __init__(self, dataset, preset):
+    def __init__(self, dataset, params):
         self.dataset = dataset
-        self.calc_pos = preset.get('balance_pos', True)
-        self.calc_neg = preset.get('balance_neg', True)
+        self.calc_pos = params.get('balance_pos', True)
+        self.calc_neg = params.get('balance_neg', True)
         assert self.calc_pos + self.calc_neg != 0, 'Select at least one metric'
 
-        self.ground_truth_column = preset.get('ground_truth_column', '')
-        self.prediction_column = preset.get('prediction_column', '')
+        self.ground_truth_column = params.get('ground_truth_column', '')
+        self.prediction_column = params.get('prediction_column', '')
 
         assert self.ground_truth_column != '', 'This metric needs a ground truth'
         assert self.prediction_column != '', 'This metric needs a prediction'
 
-        self.check_features = preset.get('protected_values', torch.zeros(len(self.dataset.i2c), dtype=bool))
+        self.check_features = params.get('protected_values', torch.zeros(len(self.dataset.i2c), dtype=bool))
         indices = self.check_features.nonzero()
-        # self.dataset.data[:,preset['protected_values']]  ## filter all unimportent
+        # self.dataset.data[:,params['protected_values']]  ## filter all unimportent
 
 
         # calculation
@@ -101,5 +101,5 @@ class balance_in_pos_neg:
 #################################################################
 ### for testing purpuse
 #################################################################
-metric = balance_in_pos_neg(dataset, preset)
+metric = balance_in_pos_neg(dataset, params)
 metric.show()
