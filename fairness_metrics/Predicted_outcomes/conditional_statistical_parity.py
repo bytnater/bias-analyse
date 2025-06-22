@@ -2,7 +2,7 @@ import torch
 import itertools
 import plotly.graph_objects as go
 
-class unconditional_statistical_parity:
+class conditional_statistical_parity:
     def __init__(self, dataset, preset):
         """
         data: dataset Tensor
@@ -17,8 +17,9 @@ class unconditional_statistical_parity:
 
         prediction_column = preset.get('prediction_column', '')
         assert prediction_column != '', 'This metric needs a prediction'
+        condition = preset.get('condition', dict())
         predictions = self.dataset.data[:,self.dataset.c2i[prediction_column]]  ## extract column with predictions from datset
-        self.predictions = (predictions > 0.8).float().squeeze()
+        self.predictions = (predictions > 0.7).float().squeeze()
         #Currently 80% certainty of model indicates a 1 prediction but can be changed
         
         protected_values = preset.get('protected_values', torch.zeros(len(dataset.i2c), dtype=bool))
@@ -35,13 +36,24 @@ class unconditional_statistical_parity:
             col_idx = self.dataset.c2i[attr]
             protected_col = self.dataset.data[:, col_idx]
 
-            unique_values = torch.unique(protected_col)
+            condition_mask = torch.ones(len(self.dataset.data), dtype=bool)
+            for cond_attr, cond_val in condition.items():
+                cond_idx = self.dataset.c2i[cond_attr]
+                condition_mask &= (self.dataset.data[:, cond_idx] == cond_val)
+
+            filtered_protected_col = protected_col[condition_mask]
+            filtered_predictions = self.predictions[condition_mask]
+
+            unique_values = torch.unique(filtered_protected_col)
 
             probs = {}
             for val in unique_values:
-                mask = protected_col == val
-                preds = self.predictions[mask]
-                proportion = preds.mean().item()
+                mask = filtered_protected_col == val
+                preds = filtered_predictions[mask]
+                if len(preds) > 0:
+                    proportion = preds.mean().item()
+                else:
+                    proportion = float('nan')  # Handle empty groups
                 probs[int(val.item())] = proportion
 
             pair_diffs = {}
@@ -71,7 +83,7 @@ class unconditional_statistical_parity:
                 y=list(probs.values()),
             ))
             fig.update_layout(
-                title=f'Positive Prediction Rate by Group for "{attr_name}"',
+                title=f'Conditional Positive Prediction Rate by Group for "{attr_name}"',
                 xaxis_title='Group',
                 yaxis_title='Positive Prediction Rate',
                 yaxis=dict(range=[0, 1]),
