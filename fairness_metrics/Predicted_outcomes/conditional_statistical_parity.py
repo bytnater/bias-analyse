@@ -19,7 +19,7 @@ class conditional_statistical_parity:
         assert prediction_column != '', 'This metric needs a prediction'
         condition = preset.get('condition', dict())
         predictions = self.dataset.data[:,self.dataset.c2i[prediction_column]]  ## extract column with predictions from datset
-        self.predictions = (predictions > 0.7).float().squeeze()
+        self.predictions = (predictions > 0.8).float().squeeze()
         #Currently 80% certainty of model indicates a 1 prediction but can be changed
         
         protected_values = preset.get('protected_values', torch.zeros(len(dataset.i2c), dtype=bool))
