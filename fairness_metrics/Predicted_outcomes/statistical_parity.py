@@ -5,13 +5,11 @@ import plotly.graph_objects as go
 class statistical_parity:
     def __init__(self, dataset, params):
         """
-        data: dataset Tensor
-        predictions: Tensor of model predictions
-        protected_attributes: List of protected attribute names
-        condition: a dictionary of attributes and specific value you want the individuals to have, leave empty for unconditional metric form
-
-        dataset: contains data, i2c, c2i
-        preset: contains all important data in a dict, note preset is a bad name for it but it is already all over the code
+        Parameters:
+            - dataset: tensor, the dataset of features
+            - prediction_column: str, name of the predicction column
+            - protected_values: list, list of bools where protected values are true
+            - condition: dict, dictionary of attributes and specific value you want the individuals to have, leave empty for unconditional metric form
         """
         self.dataset = dataset
 
