@@ -2,7 +2,7 @@ import torch
 import itertools
 import plotly.graph_objects as go
 
-class Error_rate_metrics:
+class Predictive_value_metrics:
     def __init__(self, dataset, params):
         """
         Parameters:
@@ -34,8 +34,8 @@ class Error_rate_metrics:
             protected_col = self.dataset.data[:, col_idx]
             unique_values = torch.unique(protected_col)
 
-            fpr_dict = {}
-            fnr_dict = {}
+            PPV_dict = {}
+            NPV_dict = {}
             for val in unique_values:
                 mask = protected_col == val
                 preds = prediction[mask]
@@ -46,17 +46,17 @@ class Error_rate_metrics:
                     FP = ((preds == 1) & (truth == 0)).sum()
                     FN = ((preds == 0) & (truth == 1)).sum()
 
-                    fpr = FP / (FP + TN)
-                    fnr = FN / (FN + TP)
+                    ppv = TP / (TP + FP)
+                    npv = TN / (TN + FN)
                 else:
-                    fpr = float('nan')
-                    fnr = float('nan')
-                fpr_dict[int(val)] = fpr
-                fnr_dict[int(val)] = fnr
+                    ppv = float('nan')
+                    npv = float('nan')
+                PPV_dict[int(val)] = ppv
+                NPV_dict[int(val)] = npv
 
             self.results[attr] = {
-                "fpr": fpr_dict,
-                "fnr": fnr_dict
+                "ppv": PPV_dict,
+                "npv": NPV_dict
             }
 
     def _get_column(self, feature):
@@ -77,27 +77,27 @@ class Error_rate_metrics:
             return self.results
         for attr_name in self.results:
             attr_data = self.results[attr_name]
-            fpr = attr_data['fpr']
-            fnr = attr_data['fnr']
+            ppv = attr_data['ppv']
+            npv = attr_data['npv']
             
             fig = go.Figure()
 
             fig.add_trace(go.Bar(
-                name='FPR',
-                x=[str(k) for k in fpr.keys()],
-                y=list(fpr.values())
+                name='PPV',
+                x=[str(k) for k in ppv.keys()],
+                y=list(ppv.values())
             ))
 
             fig.add_trace(go.Bar(
-                name='FNR',
-                x=[str(k) for k in fnr.keys()],
-                y=list(fnr.values())
+                name='NPV',
+                x=[str(k) for k in npv.keys()],
+                y=list(npv.values())
             ))
 
             fig.update_layout(
-                title=f'FPRs and FNRs by Group for "{attr_name}"',
+                title=f'PPVs and NPVs by Group for "{attr_name}"',
                 xaxis_title='Group',
-                yaxis_title='FPRs and FNRs',
+                yaxis_title='PPVs and NPVs',
                 yaxis=dict(range=[0, 1]),
                 bargap=0.2
             )
