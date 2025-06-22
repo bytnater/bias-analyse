@@ -50,10 +50,10 @@ class statistical_parity:
                 mask = filtered_protected_col == val
                 preds = filtered_predictions[mask]
                 if len(preds) > 0:
-                    proportion = preds.mean().item()
+                    proportion = preds.mean()
                 else:
-                    proportion = float('nan')  # Handle empty groups
-                probs[int(val.item())] = proportion
+                    proportion = float('nan')
+                probs[int(val)] = proportion
 
             pair_diffs = {}
             for g1, g2 in itertools.combinations(probs.keys(), 2):
@@ -90,9 +90,9 @@ class statistical_parity:
                 y=list(probs.values()),
             ))
             fig.update_layout(
-                title=f'Conditional Positive Prediction Rate by Group for "{attr_name}"',
+                title=f'(Conditional) Positive Prediction Rate by Group for "{attr_name}"',
                 xaxis_title='Group',
-                yaxis_title='Positive Prediction Rate',
+                yaxis_title='(Conditional) Positive Prediction Rate',
                 yaxis=dict(range=[0, 1]),
                 bargap=0.2
             )
