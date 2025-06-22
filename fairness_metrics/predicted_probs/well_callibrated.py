@@ -2,6 +2,7 @@
 This file includes a class for the fairness metrics 'test-fairness and well-calibration'
 
 author: Mick
+date: Jun 2025
 '''
 
 import torch
@@ -37,14 +38,14 @@ params = torch.load(SAVED_PRESET_PATH + 'preset1.pt')
 
 class well_calibration:
     def __init__(self, dataset, params):
+        '''
+        Parameters:
+            - ground_truth_column: str, name of the ground truth column
+            - prediction_column: str, name of the predicction column
+            - protected_values: list, list of bools where protected values are true
+        '''
         self.dataset = dataset
         self.params = params
-
-        self.ground_truth_column = params.get('ground_truth_column', '')
-        self.prediction_column = params.get('prediction_column', '')
-
-        assert self.ground_truth_column != '', 'This metric needs a ground truth'
-        assert self.prediction_column != '', 'This metric needs a prediction'
 
         check_features = params.get('protected_values', torch.zeros(len(self.dataset.i2c), dtype=bool))
         indices = check_features.nonzero()
@@ -53,10 +54,10 @@ class well_calibration:
         # calculation
         outcome_per_feature = []
         for feature in indices:
-            feature_column = self.dataset.data[:,feature].squeeze(-1)
-            ground_truth = self.dataset.data[:,self.dataset.c2i[self.ground_truth_column]]
-            prediction = self.dataset.data[:,self.dataset.c2i[self.prediction_column]]
-            prediction = torch.round(prediction / 0.1)  ## bins the into bins from 0 to 10
+            feature_column = self._get_column(feature)
+            ground_truth = self._get_ground_truth_column(params)
+            prediction = self._get_prediction_column(params)
+            prediction = torch.round(prediction / 0.1)  ## bins the predictions into bins from 0 to 10
             unique_feature_values = feature_column.unique()
             # print('unique values', unique_feature_values)
 
@@ -83,6 +84,19 @@ class well_calibration:
             outcome_per_feature.append((self.dataset.i2c[feature], calibration_data))
         
         self.results = outcome_per_feature
+
+    def _get_column(self, feature):
+        return self.dataset.data[:,feature].squeeze(-1)
+
+    def _get_ground_truth_column(self, params):
+        ground_truth_column = params.get('ground_truth_column', '')
+        assert ground_truth_column != '', 'This metric needs a ground truth'
+        return self.dataset.data[:,self.dataset.c2i[ground_truth_column]]
+
+    def _get_prediction_column(self, params):
+        prediction_column = params.get('prediction_column', '')
+        assert prediction_column != '', 'This metric needs a prediction'
+        return self.dataset.data[:,self.dataset.c2i[self.prediction_column]]
 
     def show(self, raw_results=False):
         if raw_results:
