@@ -1,5 +1,6 @@
 import torch
 import itertools
+import matplotlib.pyplot as plt
 
 class statistical_parity:
     def __init__(self, dataset, preset):
@@ -26,16 +27,10 @@ class statistical_parity:
             if is_protected
         ]
 
-        self.threshold = 0.1 #Accepted difference for statistical parity
+        self.threshold = 0.1 #Accepted difference of fairness
 
-    def check_statistical_parity(self):
-        """
-        c2i: Collum index
-        :)
-        steen papier schaar, go
-        steen
-        """
-        results = {}
+        #calculations
+        self.results = {}
         for attr in self.protected_attributes:
             col_idx = self.dataset.c2i[attr]
             protected_col = self.dataset.data[:, col_idx]
@@ -56,14 +51,18 @@ class statistical_parity:
 
             is_fair = all(pairwise_diff <= self.threshold for pairwise_diff in pair_diffs.values())
 
-            results[attr] = {
+            self.results[attr] = {
                 "group_probs": probs,
                 "pairwise_differences": pair_diffs,
                 "fair": is_fair
             }
-            
-        return results
     
-    def show(self):
-        # TODO, a funtion to represent data, via a simple message of a graph
-        pass
+    def show(self, raw_results=False):
+        if raw_results:
+            return self.results
+        for attr_name in self.results:
+            attr_data = self.results[attr_name]
+            probs = attr_data['group_probs']
+            plt.title(f'Positive Prediction Rate for "{attr_name}"')
+            plt.bar(probs.keys(), probs.values())
+            plt.show()
