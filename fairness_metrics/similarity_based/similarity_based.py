@@ -11,7 +11,7 @@ class LipschitzFairness:
                 - prediction_column: str
                 - feature_columns (for distance metric)
                 - distance_metric: 
-                    -- 'Manhattan Distance, 
+                    -- 'Manhattan Distance', 
                     -- 'Euclidean Distance', 
                     -- 'cosine'
                     -- callable
@@ -19,7 +19,13 @@ class LipschitzFairness:
 
         self.dataset = dataset
         self.prediction_column = parameters.get('prediction_column')
-        self.feature_columns = parameters.get('feature_columns')
+        # self.feature_columns = parameters.get('feature_columns')
+        protected_values = parameters.get('protected_values', torch.zeros(len(dataset.i2c), dtype=bool))
+        self.feature_columns = [
+            name for name, is_protected in zip(dataset.i2c, protected_values)
+            if is_protected
+        ]
+
         
         assert self.prediction_column, "prediction_column missing"
         assert self.feature_columns, "feature_columns missing"
@@ -27,7 +33,7 @@ class LipschitzFairness:
         self.distance_fn = self._get_distance_fn(parameters.get("distance_metric", "Euclidean Distance"))
 
         self.features = self._get_columns(self.feature_columns)
-        self.featues = self._normalize_features(self.features)
+        self.features = self._normalize_features(self.features)
         self.predictions = self._get_column(self.prediction_column)
 
         # Sample limit
@@ -79,39 +85,42 @@ class LipschitzFairness:
 
     def violation_rate(self):
         return len(self.violations) / self.total_pairs
+    
+    def show(self): # present results
+        return self.violation_rate()
 
-# ---- Test ----
+# # ---- Test ----
 
-PATH = "data/synth_data_preds.csv"
-def load_csv_to_torch(path=PATH):
-    df = pd.read_csv(path)
-    i2c = df.columns.tolist()
-    c2i = {c: i for i, c in enumerate(i2c)}
-    data_torch = torch.from_numpy(df.values)
-    return data_torch, (i2c, c2i)
+# PATH = "data/synth_data_preds.csv"
+# def load_csv_to_torch(path=PATH):
+#     df = pd.read_csv(path)
+#     i2c = df.columns.tolist()
+#     c2i = {c: i for i, c in enumerate(i2c)}
+#     data_torch = torch.from_numpy(df.values)
+#     return data_torch, (i2c, c2i)
 
-class Dataset():
-    def __init__(self, PATH):
-        data, (i2c, c2i) = load_csv_to_torch(PATH)
-        self.data = data
-        self.i2c = i2c  
-        self.c2i = c2i
+# class Dataset():
+#     def __init__(self, PATH):
+#         data, (i2c, c2i) = load_csv_to_torch(PATH)
+#         self.data = data
+#         self.i2c = i2c  
+#         self.c2i = c2i
 
 
-features = [
-        "competentie_omgaan_met_verandering_en_aanpassen", 
-        "competentie_onderzoeken",
-        "adres_aantal_woonadres_handmatig"
-        ]
+# features = [
+#         "competentie_omgaan_met_verandering_en_aanpassen", 
+#         "competentie_onderzoeken",
+#         "adres_aantal_woonadres_handmatig"
+#         ]
 
-params = {
-    "prediction_column": "predictions",
-    "feature_columns": features,
-    "distance_metric": "cosine",
-    "sample_limit": 1000
-}
+# params = {
+#     "prediction_column": "predictions",
+#     "feature_columns": features,
+#     "distance_metric": "cosine",
+#     "sample_limit": 1000
+# }
 
-dataset = Dataset('data/synth_data_preds.csv')
-fairness = LipschitzFairness(dataset, parameters=params)
+# dataset = Dataset('data/synth_data_preds.csv')
+# fairness = LipschitzFairness(dataset, parameters=params)
 
-print(fairness.violation_rate())
+# print(fairness.violation_rate())

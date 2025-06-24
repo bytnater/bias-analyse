@@ -9,36 +9,37 @@ import torch
 import pandas as pd
 import matplotlib.pyplot as plt
 
-#################################################################
-### for testing purpuse
-#################################################################
+# #################################################################
+# ### for testing purpuse
+# #################################################################
 
-DATA_PATH_SYNTH = 'data/synth_data.csv'
-SAVED_PRESET_PATH = '/home/itsmick_/Documents/UvA/Tweedejaarsproject/project/bias-analyse/checkpoints/presets/'
+# DATA_PATH_SYNTH = 'data/synth_data.csv'
+# SAVED_PRESET_PATH = '/home/itsmick_/Documents/UvA/Tweedejaarsproject/project/bias-analyse/checkpoints/presets/'
 
-def load_csv_to_torch(path=DATA_PATH_SYNTH):
-    df = pd.read_csv(path)
-    i2c = df.columns.tolist()
-    c2i = {c: i for i, c in enumerate(i2c)}
-    data_torch = torch.from_numpy(df.values)
-    return data_torch, (i2c, c2i)
+# def load_csv_to_torch(path=DATA_PATH_SYNTH):
+#     df = pd.read_csv(path)
+#     i2c = df.columns.tolist()
+#     c2i = {c: i for i, c in enumerate(i2c)}
+#     data_torch = torch.from_numpy(df.values)
+#     return data_torch, (i2c, c2i)
 
-class Dataset():
-    def __init__(self, PATH):
-        data, (i2c, c2i) = load_csv_to_torch(PATH)
-        self.data = data
-        self.i2c = i2c
-        self.c2i = c2i
+# class Dataset():
+#     def __init__(self, PATH):
+#         data, (i2c, c2i) = load_csv_to_torch(PATH)
+#         self.data = data
+#         self.i2c = i2c
+#         self.c2i = c2i
 
-dataset = Dataset('/home/itsmick_/Documents/UvA/Tweedejaarsproject/project/bias-analyse/data/altered_data/data_pred_ground_altered_pred_biased.csv')
-params = torch.load(SAVED_PRESET_PATH + 'preset1.pt')
+# dataset = Dataset('/home/itsmick_/Documents/UvA/Tweedejaarsproject/project/bias-analyse/data/altered_data/data_pred_ground_altered_pred_biased.csv')
+# params = torch.load(SAVED_PRESET_PATH + 'preset1.pt')
 
-#################################################################
+# #################################################################
 
 class balance_in_pos_neg:
     def __init__(self, dataset, params):
         '''
         Parameters:
+            - dataset: tensor, the dataset of features
             - balance_pos: bool, a flag to show positive balance
             - balance_neg: bool, a flag to show negative balance
             - ground_truth_column: str, name of the ground truth column
@@ -99,7 +100,7 @@ class balance_in_pos_neg:
     def _get_prediction_column(self, params):
         prediction_column = params.get('prediction_column', '')
         assert prediction_column != '', 'This metric needs a prediction'
-        return self.dataset.data[:,self.dataset.c2i[self.prediction_column]]
+        return self.dataset.data[:,self.dataset.c2i[prediction_column]]
 
 
     def show(self, raw_results=False):
@@ -115,8 +116,8 @@ class balance_in_pos_neg:
                 plt.bar(data[:,0], data[:,2])
                 plt.show()
 
-#################################################################
-### for testing purpuse
-#################################################################
-metric = balance_in_pos_neg(dataset, params)
-metric.show()
+# #################################################################
+# ### for testing purpuse
+# #################################################################
+# metric = balance_in_pos_neg(dataset, params)
+# metric.show()

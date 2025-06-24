@@ -9,37 +9,40 @@ import torch
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 
-#################################################################
-### for testing purpuse
-#################################################################
 
-DATA_PATH_SYNTH = 'data/synth_data.csv'
-SAVED_PRESET_PATH = '/home/itsmick_/Documents/UvA/Tweedejaarsproject/project/bias-analyse/checkpoints/presets/'
+# #################################################################
+# ### for testing purpuse
+# #################################################################
 
-def load_csv_to_torch(path=DATA_PATH_SYNTH):
-    df = pd.read_csv(path)
-    i2c = df.columns.tolist()
-    c2i = {c: i for i, c in enumerate(i2c)}
-    data_torch = torch.from_numpy(df.values)
-    return data_torch, (i2c, c2i)
+# DATA_PATH_SYNTH = 'data/synth_data.csv'
+# SAVED_PRESET_PATH = '/home/itsmick_/Documents/UvA/Tweedejaarsproject/project/bias-analyse/checkpoints/presets/'
 
-class Dataset():
-    def __init__(self, PATH):
-        data, (i2c, c2i) = load_csv_to_torch(PATH)
-        self.data = data
-        self.i2c = i2c
-        self.c2i = c2i
+# def load_csv_to_torch(path=DATA_PATH_SYNTH):
+#     df = pd.read_csv(path)
+#     i2c = df.columns.tolist()
+#     c2i = {c: i for i, c in enumerate(i2c)}
+#     data_torch = torch.from_numpy(df.values)
+#     return data_torch, (i2c, c2i)
 
-dataset = Dataset('/home/itsmick_/Documents/UvA/Tweedejaarsproject/project/bias-analyse/data/altered_data/data_pred_ground_altered_pred_biased.csv')
-params = torch.load(SAVED_PRESET_PATH + 'preset1.pt')
+# class Dataset():
+#     def __init__(self, PATH):
+#         data, (i2c, c2i) = load_csv_to_torch(PATH)
+#         self.data = data
+#         self.i2c = i2c
+#         self.c2i = c2i
 
-#################################################################
+# dataset = Dataset('/home/itsmick_/Documents/UvA/Tweedejaarsproject/project/bias-analyse/data/altered_data/data_pred_ground_altered_pred_biased.csv')
+# params = torch.load(SAVED_PRESET_PATH + 'preset1.pt')
+
+# #################################################################
 
 class well_calibration:
     def __init__(self, dataset, params):
         '''
         Parameters:
+            - dataset: tensor, the dataset of features
             - ground_truth_column: str, name of the ground truth column
             - prediction_column: str, name of the predicction column
             - protected_values: list, list of bools where protected values are true
@@ -96,7 +99,7 @@ class well_calibration:
     def _get_prediction_column(self, params):
         prediction_column = params.get('prediction_column', '')
         assert prediction_column != '', 'This metric needs a prediction'
-        return self.dataset.data[:,self.dataset.c2i[self.prediction_column]]
+        return self.dataset.data[:,self.dataset.c2i[prediction_column]]
 
     def show(self, raw_results=False):
         if raw_results:
@@ -118,8 +121,8 @@ class well_calibration:
                 plt.show()
 
 
-#################################################################
-### for testing purpuse
-#################################################################
-metric = well_calibration(dataset, params)
-metric.show()
+# #################################################################
+# ### for testing purpuse
+# #################################################################
+# metric = well_calibration(dataset, params)
+# metric.show()
