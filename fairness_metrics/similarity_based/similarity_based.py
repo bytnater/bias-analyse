@@ -86,7 +86,7 @@ class LipschitzFairness:
     def violation_rate(self):
         return len(self.violations) / self.total_pairs
     
-    def show(self): # present results
+    def show(self, raw_results=False): # present results
         return self.violation_rate()
 
 # # ---- Test ----

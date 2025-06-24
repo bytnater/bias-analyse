@@ -106,19 +106,48 @@ class well_calibration:
             return self.results
         bins = np.arange(0,10.5,1)
         for feature, data in self.results:
-                plt.title(f'Fairness scale: "{feature}"')
-                if len(data) > 5:
-                    bin_ranges = (np.linspace(0,len(data)-1,4)+.5).astype(int)
-                    for i, ni in zip(bin_ranges[:-1], bin_ranges[1:]):
-                        new_data = sum(data[i:ni,1:])/len(data[i:ni,1:])
-                        plt.plot(bins, new_data, label=[f'from {data[i,0]} to {data[ni,0]}'])
+            fig = go.Figure()
 
-                else:
-                    for group_data in data:
-                        plt.plot(bins, group_data[1:], label=[f'{group_data[0]}'])
-                
-                plt.legend()
-                plt.show()
+            if len(data) > 5:
+                bin_ranges = (np.linspace(0,len(data)-1,4)+.5).astype(int)
+                for i, ni in zip(bin_ranges[:-1], bin_ranges[1:]):
+                    new_data = sum(data[i:ni,1:])/len(data[i:ni,1:])
+                    fig.add_trace(go.Line(
+                            name=f'from {data[i,0]} to {data[ni,0]}',
+                            x=bins,
+                            y=new_data
+                        ))
+            else:
+                for group_data in data:
+                    fig.add_trace(go.Line(
+                        name=f'{group_data[0]}',
+                        x=bins,
+                        y=group_data[1:]
+                    ))
+
+            fig.update_layout(
+                title=f'Test-fairness for "{feature}"',
+                xaxis_title='Predicted probability',
+                yaxis_title='probability',
+                yaxis=dict(range=[0, 1]),
+                bargap=0.2
+            )
+
+            fig.show()
+
+            # plt.title(f'Fairness scale: "{feature}"')
+            # if len(data) > 5:
+            #     bin_ranges = (np.linspace(0,len(data)-1,4)+.5).astype(int)
+            #     for i, ni in zip(bin_ranges[:-1], bin_ranges[1:]):
+            #         new_data = sum(data[i:ni,1:])/len(data[i:ni,1:])
+            #         plt.plot(bins, new_data, label=[f'from {data[i,0]} to {data[ni,0]}'])
+
+            # else:
+            #     for group_data in data:
+            #         plt.plot(bins, group_data[1:], label=[f'{group_data[0]}'])
+            
+            # plt.legend()
+            # plt.show()
 
 
 # #################################################################

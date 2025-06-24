@@ -8,6 +8,8 @@ date: Jun 2025
 import torch
 import pandas as pd
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
+
 
 # #################################################################
 # ### for testing purpuse
@@ -107,14 +109,40 @@ class balance_in_pos_neg:
         if raw_results:
             return self.results
         for feature, data in self.results:
+            fig = go.Figure()
+
             if self.calc_pos:
-                plt.title(f'Postive balance: "{feature}"')
-                plt.bar(data[:,0], data[:,1])
-                plt.show()
+                fig.add_trace(go.Bar(
+                    name='Postive class',
+                    x=data[:,0],
+                    y=data[:,1],
+                ))
+
             if self.calc_neg:
-                plt.title(f'Negative balance: "{feature}"')
-                plt.bar(data[:,0], data[:,2])
-                plt.show()
+                fig.add_trace(go.Bar(
+                    name='Negative class',
+                    x=data[:,0],
+                    y=data[:,2],
+                ))
+
+            fig.update_layout(
+                title=f'Balance by Group for "{feature}"',
+                xaxis_title='Group',
+                yaxis_title='Average score',
+                yaxis=dict(range=[0, 1]),
+                bargap=0.2
+            )
+
+            fig.show()
+
+            # if self.calc_pos:
+            #     plt.title(f'Postive balance: "{feature}"')
+            #     plt.bar(data[:,0], data[:,1])
+            #     plt.show()
+            # if self.calc_neg:
+            #     plt.title(f'Negative balance: "{feature}"')
+            #     plt.bar(data[:,0], data[:,2])
+            #     plt.show()
 
 # #################################################################
 # ### for testing purpuse
