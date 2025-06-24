@@ -105,6 +105,7 @@ class well_calibration:
         if raw_results:
             return self.results
         bins = np.arange(0,10.5,1)
+        fig_list = []
         for feature, data in self.results:
             fig = go.Figure()
 
@@ -133,7 +134,8 @@ class well_calibration:
                 bargap=0.2
             )
 
-            fig.show()
+            fig_list.append(fig)
+        return fig_list
 
             # plt.title(f'Fairness scale: "{feature}"')
             # if len(data) > 5:

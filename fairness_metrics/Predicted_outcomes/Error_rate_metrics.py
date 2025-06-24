@@ -75,6 +75,7 @@ class Error_rate_metrics:
     def show(self, raw_results=False):
         if raw_results:
             return self.results
+        fig_list = []
         for attr_name in self.results:
             attr_data = self.results[attr_name]
             fpr = attr_data['fpr']
@@ -102,4 +103,5 @@ class Error_rate_metrics:
                 bargap=0.2
             )
 
-            fig.show()
+            fig_list.append(fig)
+        return fig_list

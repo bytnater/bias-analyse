@@ -7,7 +7,6 @@ date: Jun 2025
 
 import torch
 import pandas as pd
-import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
 
@@ -108,6 +107,7 @@ class balance_in_pos_neg:
     def show(self, raw_results=False):
         if raw_results:
             return self.results
+        fig_list = []
         for feature, data in self.results:
             fig = go.Figure()
 
@@ -133,7 +133,9 @@ class balance_in_pos_neg:
                 bargap=0.2
             )
 
-            fig.show()
+            fig_list.append(fig)
+        return fig_list
+
 
             # if self.calc_pos:
             #     plt.title(f'Postive balance: "{feature}"')

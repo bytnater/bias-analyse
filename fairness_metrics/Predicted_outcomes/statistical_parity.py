@@ -79,6 +79,7 @@ class statistical_parity:
     def show(self, raw_results=False):
         if raw_results:
             return self.results
+        fig_list = []
         for attr_name in self.results:
             attr_data = self.results[attr_name]
             probs = attr_data['group_probs']
@@ -97,4 +98,5 @@ class statistical_parity:
                 bargap=0.2
             )
 
-            fig.show()
+            fig_list.append(fig)
+        return fig_list
