@@ -23,6 +23,7 @@ class Dataset():
 
 class shap_fairness_explainer():
     def __init__(self, dataset, parameters):
+        
         self.dataset = dataset
         self.model = parameters["model"]
         self.feature_names = parameters["features_model"]
@@ -35,9 +36,7 @@ class shap_fairness_explainer():
         self.shap_values = self.explainer(self.X)
 
     def feature_importance(self, max_display=10):
-        shap.plots.bar(self.shap_values, max_display=max_display)
-
-
+        shap.plots.violin(explainer.shap_values)
 
 
 # ------------ EXAMPLE USAGE ------------ #
