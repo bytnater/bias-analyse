@@ -1,6 +1,7 @@
 import torch
 import itertools
 import pandas as pd
+import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 
 class LipschitzFairness:
@@ -86,23 +87,43 @@ class LipschitzFairness:
     def _violation_rate(self):
         return len(self.violations) / self.total_pairs
     
-    def show(self, bins=30): 
+    def show(self, raw_results=False, bins=30):
+        if raw_results:
+            return self.violations
+        
         if not self.violations:
-                print("No violations to show.")
-                return
+                return "No violations to show."
 
         amounts = [v['amount'] for v in self.violations]
 
-        print("Violation count:", len(amounts))
+        # Compute histogram data manually
+        hist_data = go.Histogram(
+            x=amounts,
+            nbinsx=bins,
+            marker=dict(color='skyblue', line=dict(color='black', width=1)),
+        )
 
-        plt.figure(figsize=(8, 4))
-        plt.hist(amounts, bins=bins, color='skyblue', edgecolor='black')
-        plt.title("Distribution of Lipschitz Violation Amounts")
-        plt.xlabel("Violation Amount)")
-        plt.ylabel("Frequency")
-        plt.grid(True, linestyle='--', alpha=0.5)
-        plt.tight_layout()
-        plt.show()
+        layout = go.Layout(
+            title="Distribution of Lipschitz Violation Amounts",
+            xaxis=dict(title="Violation Amount"),
+            yaxis=dict(title="Frequency"),
+            bargap=0.05,
+            template="simple_white"
+        )
+
+        fig = go.Figure(data=[hist_data], layout=layout)
+        return [fig]
+
+        # print("Violation count:", len(amounts))
+
+        # plt.figure(figsize=(8, 4))
+        # plt.hist(amounts, bins=bins, color='skyblue', edgecolor='black')
+        # plt.title("Distribution of Lipschitz Violation Amounts")
+        # plt.xlabel("Violation Amount)")
+        # plt.ylabel("Frequency")
+        # plt.grid(True, linestyle='--', alpha=0.5)
+        # plt.tight_layout()
+        # plt.show()
 
 # ---- Test ----
 
@@ -128,14 +149,16 @@ class LipschitzFairness:
 #         "adres_aantal_woonadres_handmatig"
 #         ]
 
-params = {
-    "prediction_column": "predictions",
-    "feature_columns": features,
-    "distance_metric": "cosine",
-    "sample_limit": 500
-}
+# params = {
+#     "prediction_column": "predictions",
+#     "feature_columns": features,
+#     "distance_metric": "cosine",
+#     "sample_limit": 500
+# }
 
 # dataset = Dataset('data/synth_data_preds.csv')
 # fairness = LipschitzFairness(dataset, parameters=params)
 
-fairness.show()
+# fairness.show()
+
+print('loaded similarity')

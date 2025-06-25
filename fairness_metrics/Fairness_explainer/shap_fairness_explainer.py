@@ -25,7 +25,7 @@ class shap_fairness_explainer():
     def __init__(self, dataset, parameters):
         self.dataset = dataset
         self.model = parameters["model"]
-        self.feature_names = parameters["features"]
+        self.feature_names = parameters["features_model"]
 
         self.feature_indices = [dataset.c2i[f] for f in self.feature_names]
 
@@ -62,7 +62,7 @@ model.fit(X, y)
 
 param = {
     "model": model,
-    "features": features
+    "features_model": features
 }
 
 explainer = shap_fairness_explainer(data, param)
