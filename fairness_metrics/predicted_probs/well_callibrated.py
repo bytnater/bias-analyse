@@ -157,3 +157,5 @@ class well_calibration:
 # #################################################################
 # metric = well_calibration(dataset, params)
 # metric.show()
+
+print('loaded calibration')

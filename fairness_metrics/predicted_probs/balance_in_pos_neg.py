@@ -151,3 +151,5 @@ class balance_in_pos_neg:
 # #################################################################
 # metric = balance_in_pos_neg(dataset, params)
 # metric.show()
+
+print('loaded balance')

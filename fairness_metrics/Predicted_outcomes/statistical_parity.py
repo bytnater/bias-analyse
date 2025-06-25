@@ -89,3 +89,5 @@ class statistical_parity:
 
             fig_list.append(fig)
         return fig_list
+    
+print('loaded statisctical')

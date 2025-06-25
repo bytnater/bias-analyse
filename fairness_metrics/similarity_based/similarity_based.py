@@ -124,3 +124,5 @@ class LipschitzFairness:
 # fairness = LipschitzFairness(dataset, parameters=params)
 
 # print(fairness.violation_rate())
+
+print('loaded sim')

@@ -105,3 +105,5 @@ class Predictive_value_metrics:
 
             fig_list.append(fig)
         return fig_list
+    
+print('loaded predictive')

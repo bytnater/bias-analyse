@@ -105,3 +105,5 @@ class Error_rate_metrics:
 
             fig_list.append(fig)
         return fig_list
+    
+print('loaded error')
