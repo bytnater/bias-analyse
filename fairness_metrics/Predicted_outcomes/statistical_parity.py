@@ -27,8 +27,6 @@ class statistical_parity:
             if is_protected
         ]
 
-        self.threshold = 0.1 #Accepted difference of fairness
-
         #calculations
         self.results = {}
         for attr in self.protected_attributes:
@@ -55,17 +53,8 @@ class statistical_parity:
                     proportion = float('nan')
                 probs[int(val)] = proportion
 
-            pair_diffs = {}
-            for g1, g2 in itertools.combinations(probs.keys(), 2):
-                diff = abs(probs[g1] - probs[g2])
-                pair_diffs[(g1, g2)] = diff
-
-            is_fair = all(pairwise_diff <= self.threshold for pairwise_diff in pair_diffs.values())
-
             self.results[attr] = {
-                "group_probs": probs,
-                "pairwise_differences": pair_diffs,
-                "fair": is_fair
+                "group_probs": probs
             }
 
     def _get_column(self, feature):
