@@ -83,13 +83,28 @@ class LipschitzFairness:
                     'amount': prediction_diff - d
                 })
 
-    def violation_rate(self):
+    def _violation_rate(self):
         return len(self.violations) / self.total_pairs
     
-    def show(self, raw_results=False): # present results
-        return self.violation_rate()
+    def show(self, bins=30): 
+        if not self.violations:
+                print("No violations to show.")
+                return
 
-# # ---- Test ----
+        amounts = [v['amount'] for v in self.violations]
+
+        print("Violation count:", len(amounts))
+
+        plt.figure(figsize=(8, 4))
+        plt.hist(amounts, bins=bins, color='skyblue', edgecolor='black')
+        plt.title("Distribution of Lipschitz Violation Amounts")
+        plt.xlabel("Violation Amount)")
+        plt.ylabel("Frequency")
+        plt.grid(True, linestyle='--', alpha=0.5)
+        plt.tight_layout()
+        plt.show()
+
+# ---- Test ----
 
 # PATH = "data/synth_data_preds.csv"
 # def load_csv_to_torch(path=PATH):
@@ -113,16 +128,14 @@ class LipschitzFairness:
 #         "adres_aantal_woonadres_handmatig"
 #         ]
 
-# params = {
-#     "prediction_column": "predictions",
-#     "feature_columns": features,
-#     "distance_metric": "cosine",
-#     "sample_limit": 1000
-# }
+params = {
+    "prediction_column": "predictions",
+    "feature_columns": features,
+    "distance_metric": "cosine",
+    "sample_limit": 500
+}
 
 # dataset = Dataset('data/synth_data_preds.csv')
 # fairness = LipschitzFairness(dataset, parameters=params)
 
-# print(fairness.violation_rate())
-
-print('loaded sim')
+fairness.show()
