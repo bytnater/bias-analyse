@@ -51,38 +51,31 @@ def load_csv_to_torch(path=PATH):
 class Dataset():
     def __init__(self, PATH):
         data, (i2c, c2i) = load_csv_to_torch(PATH)
-        self.data = data          # PyTorch tensor with all values
-        self.i2c = i2c            # List: index to column name
-        self.c2i = c2i            # Dict: column name to index
+        self.data = data          
+        self.i2c = i2c            
+        self.c2i = c2i           
 
 
-# Load dataset from CSV
 data = Dataset(PATH)
 
-# Define which features are used in the model
 features = [
     "competentie_omgaan_met_verandering_en_aanpassen", 
     "competentie_onderzoeken",
     "adres_aantal_woonadres_handmatig"
 ]
 
-# Prepare feature and label matrices for training
-X_indices = [data.c2i[f] for f in features]           # Feature column indices
-y_index = data.c2i["predictions"]                     # Target column index
+X_indices = [data.c2i[f] for f in features]          
+y_index = data.c2i["predictions"]                    
 
 X = data.data[:, X_indices].numpy()
 y = data.data[:, y_index].numpy()
 
-# Train a regression model (XGBoost)
 model = XGBRegressor()
 model.fit(X, y)
 
-# Wrap the model and data into the SHAP fairness explainer
 param = {
     "model": model,
     "features_model": features
 }
 explainer = shap_fairness_explainer(data, param)
-
-# Visualize feature influence via SHAP violin plot
 explainer.feature_importance()
