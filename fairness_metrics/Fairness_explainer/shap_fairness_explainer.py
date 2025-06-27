@@ -42,14 +42,6 @@ class shap_fairness_explainer():
 PATH = "data/synth_data_preds.csv"
 
 def load_csv_to_torch(path=PATH):
-    """
-    Load CSV into a PyTorch tensor and create column index mappings.
-    
-    Returns:
-        data_torch: Tensor of data values
-        i2c: List of column names
-        c2i: Dictionary mapping column name to index
-    """
     df = pd.read_csv(path)
     i2c = df.columns.tolist()
     c2i = {c: i for i, c in enumerate(i2c)}
@@ -57,9 +49,6 @@ def load_csv_to_torch(path=PATH):
     return data_torch, (i2c, c2i)
 
 class Dataset():
-    """
-    Simple dataset wrapper to hold data and metadata.
-    """
     def __init__(self, PATH):
         data, (i2c, c2i) = load_csv_to_torch(PATH)
         self.data = data          # PyTorch tensor with all values
