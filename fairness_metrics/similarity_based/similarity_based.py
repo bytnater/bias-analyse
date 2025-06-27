@@ -1,58 +1,77 @@
 import torch
 import itertools
-import plotly.graph_objects as go
+import pandas as pd
+import matplotlib.pyplot as plt
 
 class LipschitzFairness:
     def __init__(self, dataset, parameters):
         """
-        parameters:
-            - sample_limit
-            - prediction_column: str
-            - feature_columns (for distance metric)
-            - distance_metric: 
-                -- 'Manhattan Distance', 
-                -- 'Euclidean Distance', 
-                -- 'cosine'
-                -- callable
+        Initializes the Lipschitz Fairness check.
+        
+        Arguments:
+            dataset: object with `.data` (torch.Tensor), `.i2c` (list of column names),
+                     and `.c2i` (dict mapping column name to index)
+            parameters: dict with keys:
+                - sample_limit: int (optional, default 1000)
+                - prediction_column: str
+                - feature_columns: list of column names to use for distances
+                - distance_metric: string or callable, one of:
+                    -- 'Manhattan Distance'
+                    -- 'Euclidean Distance'
+                    -- 'cosine'
+                    -- or a custom function
+                - protected_values: bool tensor of same length as i2c (optional)
         """
 
         self.dataset = dataset
-        self.prediction_column = parameters.get('prediction_column','')
-        self.feature_columns = parameters.get('feature_columns','')
+        self.prediction_column = parameters.get('prediction_column')
+
+        # Optional: mask to select which features are considered "protected"
         protected_values = parameters.get('protected_values', torch.zeros(len(dataset.i2c), dtype=bool))
+        # Extract feature columns where protected_values is True
         self.feature_columns = [
             name for name, is_protected in zip(dataset.i2c, protected_values)
             if is_protected
         ]
 
-        assert self.prediction_column, "Lipschitz class needs a prediction"
-        assert self.feature_columns, "Lipschitz is missing feature_columns"
+        # Validate required fields
+        assert self.prediction_column, "prediction_column missing"
+        assert self.feature_columns, "feature_columns missing"
 
+        # Resolve the distance function based on metric string or callable
         self.distance_fn = self._get_distance_fn(parameters.get("distance_metric", "Euclidean Distance"))
 
+        # Extract and normalize the relevant feature columns
         self.features = self._get_columns(self.feature_columns)
         self.features = self._normalize_features(self.features)
+
+        # Extract the prediction column
         self.predictions = self._get_column(self.prediction_column)
 
-        # Sample limit
+        # Select a random subset of indices for pairwise comparison
         self.sample_limit = parameters.get('sample_limit', 1000)
         self.indices = torch.randperm(len(self.predictions))[:self.sample_limit]
         self.total_pairs = len(self.indices) * (len(self.indices) - 1) // 2
 
+        # Collect Lipschitz violations during initialization
         self.violations = []
         self._lipschitz_violations()
 
     def _get_column(self, col_name):
+        """Extract a single column from the dataset tensor."""
         return self.dataset.data[:, self.dataset.c2i[col_name]]
 
     def _get_columns(self, col_names):
+        """Extract multiple columns from the dataset tensor."""
         indices = [self.dataset.c2i[name] for name in col_names]
         return self.dataset.data[:, indices]
     
     def _normalize_features(self, X):
+        """Standardize features"""
         return (X - X.mean(dim=0)) / X.std(dim=0)
 
     def _get_distance_fn(self, metric):
+        """Return a distance function based on the input metric."""
         if callable(metric):
             return metric
         elif metric == 'Manhattan Distance':
@@ -62,9 +81,12 @@ class LipschitzFairness:
         elif metric == "cosine":
             return lambda x, y: 1 - torch.nn.functional.cosine_similarity(x.unsqueeze(0), y.unsqueeze(0)).item()
         else:
-            raise ValueError(f"Lipschitz class, unsupported distance metric {metric}")
+            raise ValueError(f"unsupported distance metric {metric}")
         
     def _lipschitz_violations(self):
+        """
+        Check all sampled index pairs for Lipschitz violations:
+        """
         for i, j in itertools.combinations(self.indices.tolist(), 2):
             x_i, x_j = self.features[i], self.features[j]
             y_i, y_j = self.predictions[i].item(), self.predictions[j].item()
@@ -72,6 +94,7 @@ class LipschitzFairness:
             d = self.distance_fn(x_i, x_j)
             prediction_diff = abs(y_i - y_j)
 
+            # Violation occurs if change in prediction > distance between features
             if prediction_diff > d:
                 self.violations.append({
                     'pair': (i, j),
@@ -81,33 +104,31 @@ class LipschitzFairness:
                 })
 
     def _violation_rate(self):
+        """Return proportion of violating pairs (not called externally)."""
         return len(self.violations) / self.total_pairs
     
-    def show(self, raw_results=False, bins=30):
-        if raw_results:
-            return self.violations
-        
+    def show(self, bins=30): 
+        """Visualize the distribution of Lipschitz violation magnitudes."""
         if not self.violations:
-                return "No violations to show."
+            print("No violations to show.")
+            return
 
         amounts = [v['amount'] for v in self.violations]
 
-        # Compute histogram data manually
-        hist_data = go.Histogram(
-            x=amounts,
-            nbinsx=bins,
-            marker=dict(color='skyblue', line=dict(color='black', width=1)),
-        )
+        print("Violation count:", len(amounts))
 
-        layout = go.Layout(
-            title="Distribution of Lipschitz Violation Amounts",
-            xaxis=dict(title="Violation Amount"),
-            yaxis=dict(title="Frequency"),
-            bargap=0.05,
-            template="simple_white"
-        )
+        plt.figure(figsize=(8, 4))
+        plt.hist(amounts, bins=bins, color='skyblue', edgecolor='black')
+        plt.title("Distribution of Lipschitz Violation Amounts")
+        plt.xlabel("Violation Amount")
+        plt.ylabel("Frequency")
+        plt.grid(True, linestyle='--', alpha=0.5)
+        plt.tight_layout()
+        plt.show()
 
-        fig = go.Figure(data=[hist_data], layout=layout)
-        return [fig]
-
-print('loaded similarity-based class')
+params = {
+    "prediction_column": "predictions",
+    "feature_columns": [],
+    "distance_metric": "cosine",
+    "sample_limit": 500
+}

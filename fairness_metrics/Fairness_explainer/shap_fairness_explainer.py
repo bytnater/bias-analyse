@@ -4,8 +4,43 @@ import shap
 import numpy as np
 from xgboost import XGBRegressor
 
+class shap_fairness_explainer():
+    """
+    Wraps SHAP explainability for fairness auditing.
+
+    Parameters:
+        dataset: Dataset object with .data, .i2c, .c2i
+        parameters: dict with:
+            - "model": trained model (e.g. XGBRegressor)
+            - "features_model": list of feature names used in the model
+    """
+    def __init__(self, dataset, parameters):
+        self.dataset = dataset
+        self.model = parameters["model"]
+        self.feature_names = parameters["features_model"]
+
+        # Map feature names to column indices
+        self.feature_indices = [dataset.c2i[f] for f in self.feature_names]
+
+        # Extract feature matrix as numpy array for SHAP
+        self.X = dataset.data[:, self.feature_indices].numpy()
+
+        # Create SHAP explainer and compute SHAP values
+        self.explainer = shap.Explainer(self.model, self.X)
+        self.shap_values = self.explainer(self.X)
+
+    def feature_importance(self, max_display=10):
+        """
+        Show violin plot of SHAP values (feature importance per instance).
+        """
+        shap.plots.violin(self.shap_values, max_display=max_display)
+
+
+# ---------- EXAMPLE USAGE ---------- #
+
 
 PATH = "data/synth_data_preds.csv"
+
 def load_csv_to_torch(path=PATH):
     df = pd.read_csv(path)
     i2c = df.columns.tolist()
@@ -16,32 +51,11 @@ def load_csv_to_torch(path=PATH):
 class Dataset():
     def __init__(self, PATH):
         data, (i2c, c2i) = load_csv_to_torch(PATH)
-        self.data = data
-        self.i2c = i2c  
-        self.c2i = c2i
+        self.data = data          
+        self.i2c = i2c            
+        self.c2i = c2i           
 
 
-class shap_fairness_explainer():
-    def __init__(self, dataset, parameters):
-        
-        self.dataset = dataset
-        self.model = parameters["model"]
-        self.feature_names = parameters["features_model"]
-
-        self.feature_indices = [dataset.c2i[f] for f in self.feature_names]
-
-        self.X = dataset.data[:, self.feature_indices].numpy()
-
-        self.explainer = shap.Explainer(self.model, self.X)
-        self.shap_values = self.explainer(self.X)
-
-    def feature_importance(self, max_display=10):
-        shap.plots.violin(explainer.shap_values)
-
-
-# ------------ EXAMPLE USAGE ------------ #
-
-PATH = "data/synth_data_preds.csv"
 data = Dataset(PATH)
 
 features = [
@@ -50,8 +64,8 @@ features = [
     "adres_aantal_woonadres_handmatig"
 ]
 
-X_indices = [data.c2i[f] for f in features]
-y_index = data.c2i["predictions"]
+X_indices = [data.c2i[f] for f in features]          
+y_index = data.c2i["predictions"]                    
 
 X = data.data[:, X_indices].numpy()
 y = data.data[:, y_index].numpy()
@@ -63,6 +77,5 @@ param = {
     "model": model,
     "features_model": features
 }
-
 explainer = shap_fairness_explainer(data, param)
 explainer.feature_importance()
