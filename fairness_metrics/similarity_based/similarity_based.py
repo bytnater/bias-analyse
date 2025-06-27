@@ -21,7 +21,6 @@ class LipschitzFairness:
                     -- or a custom function
                 - protected_values: bool tensor of same length as i2c (optional)
         """
-
         self.dataset = dataset
         self.prediction_column = parameters.get('prediction_column')
 
@@ -83,9 +82,7 @@ class LipschitzFairness:
             raise ValueError(f"unsupported distance metric {metric}")
         
     def _lipschitz_violations(self):
-        """
-        Check all sampled index pairs for Lipschitz violations:
-        """
+        """Check all sampled index pairs for Lipschitz violations:"""
         for i, j in itertools.combinations(self.indices.tolist(), 2):
             x_i, x_j = self.features[i], self.features[j]
             y_i, y_j = self.predictions[i].item(), self.predictions[j].item()
@@ -106,13 +103,13 @@ class LipschitzFairness:
         """Return proportion of violating pairs (not called externally)."""
         return len(self.violations) / self.total_pairs
     
-    def show(self, raw_results=False, bins=30):
+    def show(self, raw_results=False, bins=30) -> go.Figure:
         """Visualize the distribution of Lipschitz violation magnitudes."""
         if raw_results:
             return self.violations
         
-        if not self.violations:
-                return "No violations to show."
+        # if not self.violations:
+        #         return "No violations to show."
 
         amounts = [v['amount'] for v in self.violations]
 

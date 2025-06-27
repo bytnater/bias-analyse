@@ -72,7 +72,7 @@ class well_calibration:
         assert prediction_column != '', 'Test-fairness metrics needs a prediction'
         return self.dataset.data[:,self.dataset.c2i[prediction_column]]
 
-    def show(self, raw_results=False):
+    def show(self, raw_results=False) -> go.Figure:
         if raw_results:
             return self.results
         bins = np.arange(0,1.05,.1)

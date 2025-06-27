@@ -74,7 +74,7 @@ class balance_in_pos_neg:
         return self.dataset.data[:,self.dataset.c2i[prediction_column]]
 
 
-    def show(self, raw_results=False):
+    def show(self, raw_results=False) -> go.Figure:
         if raw_results:
             return self.results
         fig_list = []
