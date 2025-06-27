@@ -1,5 +1,11 @@
+'''
+This file contains the class for the metrics 'Predictive parity' and 'Conditional Use Accuracy Equality'
+
+author: Casper K.
+date: Jun 2025
+'''
+
 import torch
-import itertools
 import plotly.graph_objects as go
 
 class Predictive_value_metrics:
@@ -64,12 +70,12 @@ class Predictive_value_metrics:
 
     def _get_ground_truth_column(self, params):
         ground_truth_column = params.get('ground_truth_column', '')
-        assert ground_truth_column != '', 'This metric needs a ground truth'
+        assert ground_truth_column != '', 'Predictive parity metrics needs a ground truth'
         return self.dataset.data[:,self.dataset.c2i[ground_truth_column]]
 
     def _get_prediction_column(self, params):
         prediction_column = params.get('prediction_column', '')
-        assert prediction_column != '', 'This metric needs a prediction'
+        assert prediction_column != '', 'Predictive parity metrics needs a prediction'
         return self.dataset.data[:,self.dataset.c2i[prediction_column]]
     
     def show(self, raw_results=False):
@@ -106,4 +112,4 @@ class Predictive_value_metrics:
             fig_list.append(fig)
         return fig_list
     
-print('loaded predictive')
+print('loaded predictive parity class')

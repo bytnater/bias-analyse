@@ -1,5 +1,11 @@
+'''
+This file contains the class for the metrics '(Un)conditional Statistical Parity'
+
+author: Casper K.
+date: Jun 2025
+'''
+
 import torch
-import itertools
 import plotly.graph_objects as go
 
 class statistical_parity:
@@ -18,7 +24,7 @@ class statistical_parity:
         assert prediction_column != '', 'This metric needs a prediction'
         self.condition = params.get('condition', dict())
         predictions = self.dataset.data[:,self.dataset.c2i[prediction_column]]  ## extract column with predictions from datset
-        self.predictions = (predictions > 0.8).float().squeeze()
+        self.predictions = (predictions > 0.7).float().squeeze()
         #Currently 80% certainty of model indicates a 1 prediction but can be changed
         
         protected_values = params.get('protected_values', torch.zeros(len(dataset.i2c), dtype=bool))
@@ -62,7 +68,7 @@ class statistical_parity:
 
     def _get_prediction_column(self, params):
         prediction_column = params.get('prediction_column', '')
-        assert prediction_column != '', 'This metric needs a prediction'
+        assert prediction_column != '', 'Statistical parity metrics needs a prediction'
         return self.dataset.data[:,self.dataset.c2i[self.prediction_column]]
     
     def show(self, raw_results=False):
@@ -90,4 +96,4 @@ class statistical_parity:
             fig_list.append(fig)
         return fig_list
     
-print('loaded statisctical')
+print('loaded Statistical parity class')

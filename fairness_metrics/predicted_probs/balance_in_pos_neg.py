@@ -6,35 +6,7 @@ date: Jun 2025
 '''
 
 import torch
-import pandas as pd
 import plotly.graph_objects as go
-
-
-# #################################################################
-# ### for testing purpuse
-# #################################################################
-
-# DATA_PATH_SYNTH = 'data/synth_data.csv'
-# SAVED_PRESET_PATH = '/home/itsmick_/Documents/UvA/Tweedejaarsproject/project/bias-analyse/checkpoints/presets/'
-
-# def load_csv_to_torch(path=DATA_PATH_SYNTH):
-#     df = pd.read_csv(path)
-#     i2c = df.columns.tolist()
-#     c2i = {c: i for i, c in enumerate(i2c)}
-#     data_torch = torch.from_numpy(df.values)
-#     return data_torch, (i2c, c2i)
-
-# class Dataset():
-#     def __init__(self, PATH):
-#         data, (i2c, c2i) = load_csv_to_torch(PATH)
-#         self.data = data
-#         self.i2c = i2c
-#         self.c2i = c2i
-
-# dataset = Dataset('/home/itsmick_/Documents/UvA/Tweedejaarsproject/project/bias-analyse/data/altered_data/data_pred_ground_altered_pred_biased.csv')
-# params = torch.load(SAVED_PRESET_PATH + 'preset1.pt')
-
-# #################################################################
 
 class balance_in_pos_neg:
     def __init__(self, dataset, params):
@@ -81,8 +53,6 @@ class balance_in_pos_neg:
                         neg_total[1] += 1
                 avg_pos = pos_total[0]/pos_total[1] if pos_total[1] != 0 else 0
                 avg_neg = neg_total[0]/neg_total[1] if neg_total[1] != 0 else 0
-                # print(avg_pos)
-                # print(avg_neg)
 
                 balance_data.append((feature_value, avg_pos, avg_neg))
             balance_data = torch.tensor(balance_data)
@@ -95,12 +65,12 @@ class balance_in_pos_neg:
 
     def _get_ground_truth_column(self, params):
         ground_truth_column = params.get('ground_truth_column', '')
-        assert ground_truth_column != '', 'This metric needs a ground truth'
+        assert ground_truth_column != '', 'Balance in class metrics needs a ground truth'
         return self.dataset.data[:,self.dataset.c2i[ground_truth_column]]
 
     def _get_prediction_column(self, params):
         prediction_column = params.get('prediction_column', '')
-        assert prediction_column != '', 'This metric needs a prediction'
+        assert prediction_column != '', 'Balance in class metrics needs a prediction'
         return self.dataset.data[:,self.dataset.c2i[prediction_column]]
 
 
@@ -136,20 +106,4 @@ class balance_in_pos_neg:
             fig_list.append(fig)
         return fig_list
 
-
-            # if self.calc_pos:
-            #     plt.title(f'Postive balance: "{feature}"')
-            #     plt.bar(data[:,0], data[:,1])
-            #     plt.show()
-            # if self.calc_neg:
-            #     plt.title(f'Negative balance: "{feature}"')
-            #     plt.bar(data[:,0], data[:,2])
-            #     plt.show()
-
-# #################################################################
-# ### for testing purpuse
-# #################################################################
-# metric = balance_in_pos_neg(dataset, params)
-# metric.show()
-
-print('loaded balance')
+print('loaded balance in class class')

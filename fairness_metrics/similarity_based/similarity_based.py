@@ -1,34 +1,32 @@
 import torch
 import itertools
-import pandas as pd
 import plotly.graph_objects as go
 
 class LipschitzFairness:
     def __init__(self, dataset, parameters):
         """
-            parameters:
-                - sample_limit
-                - prediction_column: str
-                - feature_columns (for distance metric)
-                - distance_metric: 
-                    -- 'Manhattan Distance', 
-                    -- 'Euclidean Distance', 
-                    -- 'cosine'
-                    -- callable
+        parameters:
+            - sample_limit
+            - prediction_column: str
+            - feature_columns (for distance metric)
+            - distance_metric: 
+                -- 'Manhattan Distance', 
+                -- 'Euclidean Distance', 
+                -- 'cosine'
+                -- callable
         """
 
         self.dataset = dataset
-        self.prediction_column = parameters.get('prediction_column')
-        self.feature_columns = parameters.get('feature_columns')
+        self.prediction_column = parameters.get('prediction_column','')
+        self.feature_columns = parameters.get('feature_columns','')
         protected_values = parameters.get('protected_values', torch.zeros(len(dataset.i2c), dtype=bool))
         self.feature_columns = [
             name for name, is_protected in zip(dataset.i2c, protected_values)
             if is_protected
         ]
 
-
-        assert self.prediction_column, "prediction_column missing"
-        assert self.feature_columns, "feature_columns missing"
+        assert self.prediction_column, "Lipschitz class needs a prediction"
+        assert self.feature_columns, "Lipschitz is missing feature_columns"
 
         self.distance_fn = self._get_distance_fn(parameters.get("distance_metric", "Euclidean Distance"))
 
@@ -55,7 +53,6 @@ class LipschitzFairness:
         return (X - X.mean(dim=0)) / X.std(dim=0)
 
     def _get_distance_fn(self, metric):
-        
         if callable(metric):
             return metric
         elif metric == 'Manhattan Distance':
@@ -65,7 +62,7 @@ class LipschitzFairness:
         elif metric == "cosine":
             return lambda x, y: 1 - torch.nn.functional.cosine_similarity(x.unsqueeze(0), y.unsqueeze(0)).item()
         else:
-            raise ValueError(f"unsupported distance metric {metric}")
+            raise ValueError(f"Lipschitz class, unsupported distance metric {metric}")
         
     def _lipschitz_violations(self):
         for i, j in itertools.combinations(self.indices.tolist(), 2):
@@ -113,51 +110,4 @@ class LipschitzFairness:
         fig = go.Figure(data=[hist_data], layout=layout)
         return [fig]
 
-        # print("Violation count:", len(amounts))
-
-        # plt.figure(figsize=(8, 4))
-        # plt.hist(amounts, bins=bins, color='skyblue', edgecolor='black')
-        # plt.title("Distribution of Lipschitz Violation Amounts")
-        # plt.xlabel("Violation Amount)")
-        # plt.ylabel("Frequency")
-        # plt.grid(True, linestyle='--', alpha=0.5)
-        # plt.tight_layout()
-        # plt.show()
-
-# ---- Test ----
-
-# PATH = "data/synth_data_preds.csv"
-# def load_csv_to_torch(path=PATH):
-#     df = pd.read_csv(path)
-#     i2c = df.columns.tolist()
-#     c2i = {c: i for i, c in enumerate(i2c)}
-#     data_torch = torch.from_numpy(df.values)
-#     return data_torch, (i2c, c2i)
-
-# class Dataset():
-#     def __init__(self, PATH):
-#         data, (i2c, c2i) = load_csv_to_torch(PATH)
-#         self.data = data
-#         self.i2c = i2c  
-#         self.c2i = c2i
-
-
-# features = [
-#         "competentie_omgaan_met_verandering_en_aanpassen", 
-#         "competentie_onderzoeken",
-#         "adres_aantal_woonadres_handmatig"
-#         ]
-
-# params = {
-#     "prediction_column": "predictions",
-#     "feature_columns": features,
-#     "distance_metric": "cosine",
-#     "sample_limit": 500
-# }
-
-# dataset = Dataset('data/synth_data_preds.csv')
-# fairness = LipschitzFairness(dataset, parameters=params)
-
-# fairness.show()
-
-print('loaded similarity')
+print('loaded similarity-based class')
