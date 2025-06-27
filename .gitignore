@@ -11,9 +11,6 @@ venv/
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints
 
-# VSCode settings
-.vscode/
-
 # OS files
 .DS_Store
 Thumbs.db
