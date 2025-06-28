@@ -4,7 +4,8 @@ import shap
 import numpy as np
 from xgboost import XGBRegressor
 
-class shap_fairness_explainer():
+
+class shap_fairness_explainer:
     """
     Wraps SHAP explainability for fairness auditing.
 
@@ -14,6 +15,7 @@ class shap_fairness_explainer():
             - "model": trained model (e.g. XGBRegressor)
             - "features_model": list of feature names used in the model
     """
+
     def __init__(self, dataset, parameters):
         self.dataset = dataset
         self.model = parameters["model"]
@@ -41,6 +43,7 @@ class shap_fairness_explainer():
 
 PATH = "data/synth_data_preds.csv"
 
+
 def load_csv_to_torch(path=PATH):
     df = pd.read_csv(path)
     i2c = df.columns.tolist()
@@ -48,24 +51,25 @@ def load_csv_to_torch(path=PATH):
     data_torch = torch.from_numpy(df.values)
     return data_torch, (i2c, c2i)
 
-class Dataset():
+
+class Dataset:
     def __init__(self, PATH):
         data, (i2c, c2i) = load_csv_to_torch(PATH)
-        self.data = data          
-        self.i2c = i2c            
-        self.c2i = c2i           
+        self.data = data
+        self.i2c = i2c
+        self.c2i = c2i
 
 
 data = Dataset(PATH)
 
 features = [
-    "competentie_omgaan_met_verandering_en_aanpassen", 
+    "competentie_omgaan_met_verandering_en_aanpassen",
     "competentie_onderzoeken",
-    "adres_aantal_woonadres_handmatig"
+    "adres_aantal_woonadres_handmatig",
 ]
 
-X_indices = [data.c2i[f] for f in features]          
-y_index = data.c2i["predictions"]                    
+X_indices = [data.c2i[f] for f in features]
+y_index = data.c2i["predictions"]
 
 X = data.data[:, X_indices].numpy()
 y = data.data[:, y_index].numpy()
@@ -73,9 +77,6 @@ y = data.data[:, y_index].numpy()
 model = XGBRegressor()
 model.fit(X, y)
 
-param = {
-    "model": model,
-    "features_model": features
-}
+param = {"model": model, "features_model": features}
 explainer = shap_fairness_explainer(data, param)
 explainer.feature_importance()
