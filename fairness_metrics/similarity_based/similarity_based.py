@@ -1,7 +1,19 @@
+'''
+This file includes a class for the fairness metrics 'Lipschitz Fairness'
+
+
+Reference:
+Dwork, C., Hardt, M., Pitassi, T., Reingold, O., & Zemel, R. (2012).
+Fairness Through Awareness. In *Proceedings of the 3rd Innovations in Theoretical Computer Science Conference (ITCS '12)*,
+pp. 214–226. https://doi.org/10.1145/2090236.2090255
+
+author: Julius
+date: Jun 2025
+'''
+
 import torch
 import itertools
 import plotly.graph_objects as go
-
 
 class LipschitzFairness:
     def __init__(self, dataset, parameters):

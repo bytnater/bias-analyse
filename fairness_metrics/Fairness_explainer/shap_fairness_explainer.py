@@ -1,7 +1,19 @@
+
+"""
+This file contains the class for SHAP (SHapley Additive exPlanations) model interpretability.
+
+Reference:
+Lundberg, S. M., & Lee, S.-I. (2017). A Unified Approach to Interpreting Model Predictions. 
+Curran Associates, Inc.
+URL: http://papers.nips.cc/paper/7062-a-unified-approach-to-interpreting-model-predictions.pdf
+
+author: Julius
+date: Jun 2025
+"""
+
 import pandas as pd
 import torch
 import shap
-import numpy as np
 from xgboost import XGBRegressor
 
 
