@@ -1,6 +1,13 @@
 '''
 This file contains the class for the metrics '(Un)conditional Statistical Parity'
 
+Mehrabi, N., Morstatter, F., Saxena, N., Lerman, K., & Galstyan, A. (2021). A survey on bias
+and fairness in machine learning. ACM computing surveys (CSUR), 54 (6), 1–35.
+
+Verma, S., & Rubin, J. (2018). Fairness definitions explained. Proceedings of the International
+Workshop on Software Fairness,
+url: https://doi.org/10.1145/3194770.3194776
+
 author: Casper K.
 date: Jun 2025
 '''
@@ -25,7 +32,7 @@ class statistical_parity:
         self.condition = params.get('condition', dict())
         
         # Extract prediction column and binarize.
-        # Currently 80% certainty of model indicates a 1 prediction but can be changed
+        # Currently 70% certainty of model indicates a 1 prediction but can be changed
         predictions = self.dataset.data[:,self.dataset.c2i[prediction_column]]  ## extract column with predictions from datset
         self.predictions = (predictions > 0.7).float().squeeze()
         

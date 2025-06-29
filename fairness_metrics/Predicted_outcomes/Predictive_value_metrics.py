@@ -1,6 +1,13 @@
 '''
 This file contains the class for the metrics 'Predictive parity' and 'Conditional Use Accuracy Equality'
 
+Chouldechova, A. (2017). Fair prediction with disparate impact: A study of bias in recidivism
+prediction instruments. Big data, 5 (2), 153–163.
+
+Verma, S., & Rubin, J. (2018). Fairness definitions explained. Proceedings of the International
+Workshop on Software Fairness,
+url: https://doi.org/10.1145/3194770.3194776
+
 author: Casper K.
 date: Jun 2025
 '''
@@ -22,10 +29,10 @@ class Predictive_value_metrics:
 
         # Extract prediction column and binarize.
         prediction = self._get_prediction_column(params)
-        prediction = (prediction > 0.8).float().squeeze()
+        prediction = (prediction > 0.7).float().squeeze()
         
         # Extract ground truth labels
-        # Currently 80% certainty of model indicates a 1 prediction but can be changed
+        # Currently 70% certainty of model indicates a 1 prediction but can be changed
         ground_truth = self._get_ground_truth_column(params)
         
         # Get list of protected attributes from i2c and the provided protection mask
