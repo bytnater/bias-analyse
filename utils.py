@@ -8,13 +8,24 @@ SAVED_DATASET_PATH = 'data/'
 RESEVERD_PRESET = 'session_save.pt'
 
 
-def load_csv_to_torch(path=None, upload_widget=None):
+def load_file_to_torch(path=None, upload_widget=None):
     if upload_widget is not None:
         uploaded_file = upload_widget[0]
         content = uploaded_file.content
-        df = pd.read_csv(BytesIO(content))
+        if uploaded_file.name.endswith('.csv'):
+            df = pd.read_csv(BytesIO(content))
+        elif uploaded_file.name.endswith('.xlsx'):
+            df = pd.read_excel(BytesIO(content))
+        else:
+            raise ValueError('File type not supported.')
+
     elif path is not None:
-        df = pd.read_csv(path)
+        if path.endswith('.csv'):
+            df = pd.read_csv(path)
+        elif path.endswith('.xlsx'):
+            df = pd.read_excel(path)
+        else:
+            raise ValueError('File type not supported.')
     else:
         raise ValueError("Either a file path or a file upload widget must be provided.")
 
@@ -25,7 +36,7 @@ def load_csv_to_torch(path=None, upload_widget=None):
 
 class Dataset():
     def __init__(self, PATH=None, upload_widget=None):
-        data, (i2c, c2i) = load_csv_to_torch(PATH, upload_widget)
+        data, (i2c, c2i) = load_file_to_torch(PATH, upload_widget)
         self.data = data
         self.i2c = i2c
         self.c2i = c2i

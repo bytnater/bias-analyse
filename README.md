@@ -10,7 +10,7 @@ This project contains the source code for a structured approarch to compute bias
 
 ## Notebooks
 In [main.ipynb](https://github.com/bytnater/bias-analyse/blob/main/main.ipynb), you can select and analyze any .csv file using various fairness metrics:
-1. Run the first cell and upload the .csv file to analyze.
+1. Run the first cell and upload a `.csv` or a `.xlsx` file to analyze.
 2. Select the features for ground truth, predictions, and protected attributes to analyze.
 3. Choose the fairness metrics you want to apply.
 4. Compute and visualize the results.
