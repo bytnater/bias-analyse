@@ -8,7 +8,7 @@ This project contains the source code for a structured approarch to compute bias
 - Python
 - Jupyter Notebook
 
-# Notebooks
+## Notebooks
 In [main.ipynb](https://github.com/bytnater/bias-analyse/blob/main/main.ipynb) you can select and analyze any .csv file using different fairness metrics.
 1. Run the first cell and upload the .csv file to analyze.
 2. Select which features are the ground truth, predictions, and/or which are to be analyzed.
