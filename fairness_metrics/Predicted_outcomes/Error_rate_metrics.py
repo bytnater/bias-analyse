@@ -1,6 +1,16 @@
 '''
 This file contains the class for the metrics 'Equalised Odds' and 'Equal Opportunity'
 
+Hardt, M., Price, E., & Srebro, N. (2016). Equality of opportunity in supervised learning. Ad-
+vances in neural information processing systems, 29.
+
+Corbett-Davies, S., Pierson, E., Feller, A., Goel, S., & Huq, A. (2017). Algorithmic decision making and the cost of fairness. 
+Proceedings of the 23rd acm sigkdd international conference on knowledge discovery and data mining, 797–806.
+
+Verma, S., & Rubin, J. (2018). Fairness definitions explained. Proceedings of the International
+Workshop on Software Fairness,
+url: https://doi.org/10.1145/3194770.3194776
+
 author: Casper K.
 date: Jun 2025
 '''
@@ -22,12 +32,12 @@ class Error_rate_metrics:
 
         # Get and prediction values
         prediction = self._get_prediction_column(params)
-        prediction = (prediction > 0.8).float().squeeze()
+        prediction = (prediction > 0.7).float().squeeze()
         
         # Get ground truth labels
         ground_truth = self._get_ground_truth_column(params)
         
-        ## -- Currently 80% certainty of model indicates a 1 prediction but can be changed -- 
+        ## -- Currently 70% certainty of model indicates a 1 prediction but can be changed -- 
         
         protected_values = params.get('protected_values', torch.zeros(len(dataset.i2c), dtype=bool))
         self.protected_attributes = [
