@@ -112,8 +112,11 @@ class LipschitzFairness:
         if raw_results:
             return self.violations
 
-        # if not self.violations:
-        #         return "No violations to show."
+        if not self.violations:
+                return ["No violations to show."]
+
+        result_lst = []
+        result_lst.append(f"Violation count: {len(amounts)}")
 
         amounts = [v["amount"] for v in self.violations]
 
@@ -133,7 +136,8 @@ class LipschitzFairness:
         )
 
         fig = go.Figure(data=[hist_data], layout=layout)
-        return [fig]
+        result_lst.append(fig)
+        return result_lst
 
 
 print("loaded similarity-based class")
