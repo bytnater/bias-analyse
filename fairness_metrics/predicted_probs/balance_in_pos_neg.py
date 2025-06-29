@@ -1,6 +1,16 @@
 '''
 This file includes a class for the fairness metrics 'balance in positve/negative class'
 
+reference
+Kleinberg, J., Mullainathan, S., & Raghavan, M. (2016). Inherent trade-offs in the fair determi-
+nation of risk scores
+url: https://arxiv.org/abs/1609.05807
+
+Verma, S., & Rubin, J. (2018). Fairness definitions explained. Proceedings of the International
+Workshop on Software Fairness,
+url: https://doi.org/10.1145/3194770.3194776
+
+
 author: Mick
 date: Jun 2025
 '''

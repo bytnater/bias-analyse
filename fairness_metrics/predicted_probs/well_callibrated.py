@@ -1,6 +1,15 @@
 '''
 This file includes a class for the fairness metrics 'test-fairness' and 'well-calibration'
 
+reference:
+Chouldechova, A. (2016). Fair prediction with disparate impact: A study of bias in recidivism prediction instruments.
+url: https://arxiv.org/abs/1610.07524
+
+Verma, S., & Rubin, J. (2018). Fairness definitions explained. Proceedings of the International
+Workshop on Software Fairness,
+url: https://doi.org/10.1145/3194770.3194776
+
+
 author: Mick
 date: Jun 2025
 '''
