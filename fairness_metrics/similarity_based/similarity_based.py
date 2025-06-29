@@ -107,7 +107,7 @@ class LipschitzFairness:
         """Return proportion of violating pairs (not called externally)."""
         return len(self.violations) / self.total_pairs
 
-    def show(self, raw_results=False, bins=30) -> go.Figure:
+    def show(self, raw_results=False, bins=30) -> list[str, go.Figure]:
         """Visualize the distribution of Lipschitz violation magnitudes."""
         if raw_results:
             return self.violations
@@ -116,9 +116,10 @@ class LipschitzFairness:
                 return ["No violations to show."]
 
         result_lst = []
-        result_lst.append(f"Violation count: {len(amounts)}")
 
         amounts = [v["amount"] for v in self.violations]
+
+        result_lst.append(f"Violation count: {len(amounts)}")
 
         # Compute histogram data manually
         hist_data = go.Histogram(
